@@ -1,0 +1,17 @@
+{
+  "reference": ["ref_01.jpg", "ref_02.jpg"],
+  "images": [
+    { "file": "real_01.jpg",   "same_person": true,  "edited": false },
+    { "file": "real_02.jpg",   "same_person": true,  "edited": false },
+    { "file": "real_03.jpg",   "same_person": true,  "edited": false },
+    { "file": "edited_01.jpg", "same_person": true,  "edited": true },
+    { "file": "edited_02.jpg", "same_person": true,  "edited": true },
+    { "file": "edited_03.jpg", "same_person": true,  "edited": true },
+    { "file": "edited_04.jpg", "same_person": true,  "edited": true },
+    { "file": "other_01.jpg",  "same_person": false, "edited": false },
+    { "file": "other_02.jpg",  "same_person": false, "edited": false },
+    { "file": "other_03.jpg",  "same_person": false, "edited": false },
+    { "file": "other_04.jpg",  "same_person": false, "edited": false },
+    { "file": "other_05.jpg",  "same_person": false, "edited": false }
+  ]
+}

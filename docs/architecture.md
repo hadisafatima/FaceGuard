@@ -15,3 +15,9 @@ EventBridge triggers the scan on a schedule.
 ## Decisions
 - Scanning is simulated with a small labeled dataset for the demo.
 - Manipulation detection approach: TBD (decided in M6).
+
+
+## AWS resources
+- Region: us-east-1
+- Reference bucket: faceguard-reference-images
+- Dataset bucket: faceguard-dataset-images
