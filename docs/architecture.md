@@ -40,3 +40,8 @@ EventBridge triggers the scan on a schedule.
 
 
 - API: POST /scan, GET /alerts (HTTP API, us-east-1)
+
+- Scan Scheduling: For scheduling we have chosen, EventBridge Scheduler, which runs daily by default & was set to 5 minutes only during testing to check whether scheduling was working or not, we chose 'once a day' (1000 calls per month) bcuz that's what a free tier account can easily manage (cost control).
+
+
+- Chrome extensions don’t allow inline 'script' code, which is why the JavaScript is in its own file.

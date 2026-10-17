@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FaceGuard</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header>
+    <h1>FaceGuard</h1>
+    <p class="tagline">Google Alerts for your face</p>
+  </header>
+
+  <main>
+    <p id="status" class="status">Loading...</p>
+
+    <button id="scanBtn" type="button" disabled>Scan now</button>
+
+    <section>
+      <h2>Alerts</h2>
+      <ul id="alertList">
+        <li class="empty">No alerts to show yet.</li>
+      </ul>
+    </section>
+  </main>
+
+  <script src="popup.js"></script>
+</body>
+</html>
