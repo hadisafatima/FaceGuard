@@ -23,6 +23,14 @@
         <li class="empty">No alerts to show yet.</li>
       </ul>
     </section>
+
+    <section class="upload">
+      <h2>Reference photo</h2>
+      <p class="hint">Upload a clear, front-facing photo of yourself (JPG or PNG, up to 5 MB). It stays in a private bucket and is only used for matching.</p>
+      <input id="refFile" type="file" accept="image/jpeg,image/png" />
+      <button id="uploadBtn" type="button" class="secondary">Upload reference photo</button>
+      <p id="uploadMsg" class="upload-msg"></p>
+    </section>
   </main>
 
   <script src="popup.js"></script>

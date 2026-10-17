@@ -1,13 +1,15 @@
 {
   "manifest_version": 3,
   "name": "FaceGuard",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Alerts you when photos matching your face appear where they shouldn't, and flags likely edits.",
   "action": {
     "default_popup": "popup.html",
     "default_title": "FaceGuard"
   },
   "host_permissions": [
-    "https://6q03i3h4vi.execute-api.us-east-1.amazonaws.com/*"
+    "https://6q03i3h4vi.execute-api.us-east-1.amazonaws.com/*",
+    "https://*.s3.amazonaws.com/*",
+    "https://*.s3.us-east-1.amazonaws.com/*"
   ]
 }
