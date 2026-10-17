@@ -3,7 +3,7 @@
 }
 
 body {
-  width: 360px;
+  width: 380px;
   margin: 0;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   font-size: 14px;
@@ -32,12 +32,26 @@ main {
   padding: 14px 16px 16px;
 }
 
+/* Status banner */
 .status {
   margin: 0 0 12px;
   padding: 8px 10px;
-  background: #eff6ff;
   border-radius: 6px;
+}
+
+.status.info {
+  background: #eff6ff;
   color: #1e40af;
+}
+
+.status.success {
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.status.error {
+  background: #fef2f2;
+  color: #991b1b;
 }
 
 button {
@@ -62,12 +76,73 @@ h2 {
   font-size: 14px;
 }
 
+/* Alert list */
 ul {
   margin: 0;
   padding: 0;
   list-style: none;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .empty {
   color: #6b7280;
+}
+
+.alert {
+  margin-bottom: 8px;
+  padding: 10px;
+  border: 1px solid #e5e7eb;
+  border-left-width: 4px;
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.alert.deepfake {
+  border-left-color: #dc2626;
+}
+
+.alert.repost {
+  border-left-color: #d97706;
+}
+
+.alert-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.alert-name {
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.badge {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.badge.deepfake {
+  background: #dc2626;
+}
+
+.badge.repost {
+  background: #d97706;
+}
+
+.alert-details {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #4b5563;
+}
+
+.alert-time {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #9ca3af;
 }
