@@ -45,3 +45,31 @@ EventBridge triggers the scan on a schedule.
 
 
 - Chrome extensions don’t allow inline 'script' code, which is why the JavaScript is in its own file.
+
+# Privacy and Security
+
+## What FaceGuard stores
+- Reference photos (the user's own face), in a private S3 bucket.
+- A demo set of images to scan, in a second private S3 bucket.
+- Alert records (image name, scores, verdict, timestamp) in DynamoDB.
+- No passwords, no payment data, and no access keys in the code.
+
+## Protections in place
+- Both S3 buckets block all public access and use encryption at rest.
+- The extension never receives AWS keys. Uploads use short-lived (5 minute),
+  single-file upload tickets limited to JPG/PNG and 5 MB.
+- Each Lambda has its own minimal IAM role (no wildcard actions).
+- The API is rate-limited, and the number of reference photos is capped.
+- Reference photos are only used to compare faces.
+- Users can have their photos and alerts deleted on request.
+- Test photos are of consenting people only, and the source repo is private.
+
+## Known limitations (future work)
+- The API has no user login. A production version would add Amazon Cognito so
+  each user only sees and manages their own data.
+- Detection is a likelihood score, not proof. A "possible deepfake" result is
+  a prompt to look closer, not a verdict.
+- Scanning is simulated with a demo dataset. Real web scanning would need
+  legal review (consent, platform terms, data protection laws).
+- Deletion on request is manual today. A signed-in "delete my data" button
+  would automate it.

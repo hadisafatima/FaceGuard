@@ -190,3 +190,15 @@ button.secondary:disabled {
 .upload-msg.error {
   color: #991b1b;
 }
+
+.alert-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.alert-actions button {
+  width: auto;
+  padding: 5px 10px;
+  font-size: 12px;
+}

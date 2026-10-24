@@ -62,6 +62,67 @@ function makeEl(tag, className, text) {
   return el;
 }
 
+// ---------- Takedown request ----------
+
+function buildRemovalMessage(alert) {
+  const found = formatTime(alert.scannedAt) || "recently";
+  const isDeepfake = alert.verdict === "Possible deepfake";
+
+  const subject = isDeepfake
+    ? "Removal request: manipulated image of me published without consent"
+    : "Removal request: image of me published without consent";
+
+  const finding = isDeepfake
+    ? "The image appears to have been digitally edited or generated, so it may misrepresent me."
+    : "This is a photo of me that was posted without my permission.";
+
+  const body = [
+    "Hello,",
+    "",
+    "I am requesting the removal of an image of me that is published on your platform without my consent.",
+    "",
+    "Link to the page with the image: [paste the URL here]",
+    "Image reference: " + alert.imageId,
+    "Detected by FaceGuard on: " + found,
+    "",
+    finding,
+    "Automated analysis (estimates, not proof):",
+    "- Face match confidence: " + alert.similarity + "%",
+    "- Manipulation likelihood: " + alert.manipulationScore + "/100",
+    "",
+    "I did not give permission for this image to be shared. Please remove it as soon as possible and confirm once it has been taken down. I can provide proof of identity if needed.",
+    "",
+    "Thank you,",
+    "[Your name]",
+  ].join("\n");
+
+  return { subject, body };
+}
+
+function openRemovalEmail(alert) {
+  const { subject, body } = buildRemovalMessage(alert);
+  const url =
+    "https://mail.google.com/mail/?view=cm&fs=1" +
+    "&su=" + encodeURIComponent(subject) +
+    "&body=" + encodeURIComponent(body);
+  chrome.tabs.create({ url });
+}
+
+async function copyRemovalText(alert, button) {
+  const { subject, body } = buildRemovalMessage(alert);
+  try {
+    await navigator.clipboard.writeText("Subject: " + subject + "\n\n" + body);
+    button.textContent = "Copied!";
+  } catch (err) {
+    button.textContent = "Copy failed";
+  }
+  setTimeout(() => {
+    button.textContent = "Copy text";
+  }, 2000);
+}
+
+// ---------- Alerts list ----------
+
 function renderAlerts(alerts) {
   listEl.replaceChildren();
 
@@ -90,6 +151,19 @@ function renderAlerts(alerts) {
     const when = formatTime(a.scannedAt);
     if (when) li.appendChild(makeEl("div", "alert-time", "Scanned " + when));
 
+    const actions = makeEl("div", "alert-actions");
+
+    const removeBtn = makeEl("button", "", "Request removal");
+    removeBtn.type = "button";
+    removeBtn.addEventListener("click", () => openRemovalEmail(a));
+    actions.appendChild(removeBtn);
+
+    const copyBtn = makeEl("button", "secondary", "Copy text");
+    copyBtn.type = "button";
+    copyBtn.addEventListener("click", () => copyRemovalText(a, copyBtn));
+    actions.appendChild(copyBtn);
+
+    li.appendChild(actions);
     listEl.appendChild(li);
   }
 }
@@ -120,6 +194,8 @@ async function runScan() {
     scanBtn.textContent = "Scan now";
   }
 }
+
+// ---------- Reference photo upload ----------
 
 async function uploadReference() {
   const file = fileInput.files[0];
