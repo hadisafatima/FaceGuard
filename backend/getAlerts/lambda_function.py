@@ -22,7 +22,6 @@ def lambda_handler(event, context):
         response = table.scan(ExclusiveStartKey=response["LastEvaluatedKey"])
         items.extend(response.get("Items", []))
 
-    # Newest and most suspicious first
     items.sort(key=lambda i: (i.get("scannedAt", ""), i.get("manipulationScore", 0)), reverse=True)
 
     return {

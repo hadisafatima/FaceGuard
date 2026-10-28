@@ -9,8 +9,8 @@ s3 = boto3.client("s3")
 DATASET_BUCKET = os.environ["DATASET_BUCKET"]
 IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png")
 
-GRID = 8          # image is split into GRID x GRID blocks
-MAX_SIDE = 768    # images are shrunk to this size for speed
+GRID = 8         
+MAX_SIDE = 768   
 
 # Over-smoothing detection (tuned on the demo dataset)
 # noise_mean below ~6.4 starts to count; below ~4.0 is maxed out

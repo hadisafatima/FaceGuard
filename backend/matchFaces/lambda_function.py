@@ -35,7 +35,7 @@ def best_similarity(ref_keys, target_key):
                 SimilarityThreshold=0,
             )
         except ClientError as e:
-            # e.g. no face found in an image: skip this pair
+            # if no face found in an image: skip this pair
             print(f"Skipped {ref_key} vs {target_key}: {e.response['Error']['Code']}")
             continue
 

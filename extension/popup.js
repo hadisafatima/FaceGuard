@@ -19,7 +19,7 @@ function setUploadMsg(text, kind = "") {
   uploadMsg.className = "upload-msg " + kind;
 }
 
-// Call the backend with a timeout, return the parsed JSON.
+// Call the backend 
 async function api(path, options = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 40000);
@@ -62,8 +62,7 @@ function makeEl(tag, className, text) {
   return el;
 }
 
-// ---------- Takedown request ----------
-
+// Takedown request
 function buildRemovalMessage(alert) {
   const found = formatTime(alert.scannedAt) || "recently";
   const isDeepfake = alert.verdict === "Possible deepfake";
@@ -121,8 +120,7 @@ async function copyRemovalText(alert, button) {
   }, 2000);
 }
 
-// ---------- Alerts list ----------
-
+// Alerts list
 function renderAlerts(alerts) {
   listEl.replaceChildren();
 
@@ -195,8 +193,7 @@ async function runScan() {
   }
 }
 
-// ---------- Reference photo upload ----------
-
+// Reference photo upload
 async function uploadReference() {
   const file = fileInput.files[0];
 
