@@ -12,12 +12,3 @@ manipulated (deepfake) images.
 
 ## AWS services
 S3, Lambda, API Gateway, DynamoDB, Rekognition, SNS, EventBridge
-
-## Project structure
-- `extension/`  Chrome extension (popup UI)
-- `backend/`    Lambda functions
-- `dataset/`    Demo images and labels (consenting people only)
-- `docs/`       Architecture and notes
-
-## Status
-Work in progress, built milestone by milestone.
