@@ -147,6 +147,7 @@ ul {
   color: #9ca3af;
 }
 
+/* Reference photo upload */
 .upload {
   margin-top: 16px;
   padding-top: 4px;
@@ -191,6 +192,7 @@ button.secondary:disabled {
   color: #991b1b;
 }
 
+/* Alert action buttons */
 .alert-actions {
   display: flex;
   gap: 8px;
@@ -201,4 +203,28 @@ button.secondary:disabled {
   width: auto;
   padding: 5px 10px;
   font-size: 12px;
+}
+
+/* Email field and user ID line */
+input[type="email"] {
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+input[type="email"]:focus {
+  outline: 2px solid #93c5fd;
+  border-color: #2563eb;
+}
+
+code {
+  font-size: 11px;
+  word-break: break-all;
+}
+
+.id-line {
+  margin-top: 16px;
 }

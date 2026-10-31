@@ -25,12 +25,23 @@
     </section>
 
     <section class="upload">
-      <h2>Reference photo</h2>
-      <p class="hint">Upload a clear, front-facing photo of yourself (JPG or PNG, up to 5 MB). It stays in a private bucket and is only used for matching.</p>
+      <h2>Alert email</h2>
+      <p class="hint">Where should FaceGuard send your alerts? AWS emails you a confirmation link the first time.</p>
+      <input id="emailInput" type="email" placeholder="you@example.com" autocomplete="email" />
+      <button id="saveEmailBtn" type="button" class="secondary">Save email</button>
+      <p id="emailMsg" class="upload-msg"></p>
+    </section>
+
+    <section class="upload">
+      <h2>Reference photos</h2>
+      <p class="hint">Upload clear, front-facing photos of yourself (JPG or PNG, up to 5 MB each). They stay in a private bucket and are only used to look for you.</p>
+      <p id="refCount" class="hint"></p>
       <input id="refFile" type="file" accept="image/jpeg,image/png" />
       <button id="uploadBtn" type="button" class="secondary">Upload reference photo</button>
       <p id="uploadMsg" class="upload-msg"></p>
     </section>
+
+    <p class="hint id-line">Your anonymous ID (keeps your data separate from other users): <code id="userIdText"></code></p>
   </main>
 
   <script src="popup.js"></script>

@@ -1,6 +1,8 @@
 const API_BASE = "https://6q03i3h4vi.execute-api.us-east-1.amazonaws.com";
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 const ALLOWED_TYPES = ["image/jpeg", "image/png"];
+const USER_KEY = "faceguardUserId";
+const USER_ID_PATTERN = /^[a-f0-9]{32}$/;
 
 const statusEl = document.getElementById("status");
 const scanBtn = document.getElementById("scanBtn");
@@ -8,6 +10,38 @@ const listEl = document.getElementById("alertList");
 const fileInput = document.getElementById("refFile");
 const uploadBtn = document.getElementById("uploadBtn");
 const uploadMsg = document.getElementById("uploadMsg");
+const emailInput = document.getElementById("emailInput");
+const saveEmailBtn = document.getElementById("saveEmailBtn");
+const emailMsg = document.getElementById("emailMsg");
+const refCountEl = document.getElementById("refCount");
+const userIdText = document.getElementById("userIdText");
+
+// ---------- Anonymous user identity ----------
+// Each browser gets a random ID the first time FaceGuard runs.
+// The backend uses it to keep every person's photos, alerts and email separate.
+
+function newUserId() {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+function loadOrCreateUserId() {
+  try {
+    const saved = localStorage.getItem(USER_KEY);
+    if (saved && USER_ID_PATTERN.test(saved)) return saved;
+    const created = newUserId();
+    localStorage.setItem(USER_KEY, created);
+    return created;
+  } catch (_) {
+    // Storage unavailable: use an ID that lasts only while this window is open.
+    return newUserId();
+  }
+}
+
+const USER_ID = loadOrCreateUserId();
+
+// ---------- Small helpers ----------
 
 function setStatus(text, kind = "info") {
   statusEl.textContent = text;
@@ -19,12 +53,19 @@ function setUploadMsg(text, kind = "") {
   uploadMsg.className = "upload-msg " + kind;
 }
 
-// Call the backend 
+function setEmailMsg(text, kind = "") {
+  emailMsg.textContent = text;
+  emailMsg.className = "upload-msg " + kind;
+}
+
+// Call the backend with a timeout, return the parsed JSON.
+// Every request carries the user's anonymous ID.
 async function api(path, options = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 40000);
   try {
-    const res = await fetch(API_BASE + path, { ...options, signal: controller.signal });
+    const headers = { ...(options.headers || {}), "x-user-id": USER_ID };
+    const res = await fetch(API_BASE + path, { ...options, headers, signal: controller.signal });
     if (!res.ok) {
       let message = "Server returned " + res.status;
       try {
@@ -62,7 +103,8 @@ function makeEl(tag, className, text) {
   return el;
 }
 
-// Takedown request
+// ---------- Takedown request ----------
+
 function buildRemovalMessage(alert) {
   const found = formatTime(alert.scannedAt) || "recently";
   const isDeepfake = alert.verdict === "Possible deepfake";
@@ -98,13 +140,22 @@ function buildRemovalMessage(alert) {
   return { subject, body };
 }
 
+// Works both inside the Chrome extension and on a normal web page.
+function openInNewTab(url) {
+  if (typeof chrome !== "undefined" && chrome.tabs && chrome.tabs.create) {
+    chrome.tabs.create({ url });
+  } else {
+    window.open(url, "_blank", "noopener");
+  }
+}
+
 function openRemovalEmail(alert) {
   const { subject, body } = buildRemovalMessage(alert);
   const url =
     "https://mail.google.com/mail/?view=cm&fs=1" +
     "&su=" + encodeURIComponent(subject) +
     "&body=" + encodeURIComponent(body);
-  chrome.tabs.create({ url });
+  openInNewTab(url);
 }
 
 async function copyRemovalText(alert, button) {
@@ -120,7 +171,8 @@ async function copyRemovalText(alert, button) {
   }, 2000);
 }
 
-// Alerts list
+// ---------- Alerts list ----------
+
 function renderAlerts(alerts) {
   listEl.replaceChildren();
 
@@ -193,7 +245,55 @@ async function runScan() {
   }
 }
 
-// Reference photo upload
+// ---------- Profile: email and reference photo count ----------
+
+async function loadProfile() {
+  try {
+    const me = await api("/me");
+    if (me.email) {
+      emailInput.value = me.email;
+      setEmailMsg(
+        "Alerts will be sent to " + me.email + ". If you have not yet, click the confirmation link AWS emailed you.",
+        "success"
+      );
+    } else {
+      setEmailMsg("Add your email to receive alerts.", "");
+    }
+    refCountEl.textContent =
+      me.referenceCount + " of " + me.maxReferences + " reference photos uploaded.";
+  } catch (err) {
+    setEmailMsg("Could not load your profile: " + err.message, "error");
+  }
+}
+
+async function saveEmail() {
+  const email = emailInput.value.trim();
+  if (!email || !emailInput.checkValidity()) {
+    setEmailMsg("Enter a valid email address.", "error");
+    return;
+  }
+
+  saveEmailBtn.disabled = true;
+  saveEmailBtn.textContent = "Saving...";
+  setEmailMsg("Saving...", "");
+
+  try {
+    const result = await api("/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    setEmailMsg(result.message, "success");
+  } catch (err) {
+    setEmailMsg("Could not save: " + err.message, "error");
+  } finally {
+    saveEmailBtn.disabled = false;
+    saveEmailBtn.textContent = "Save email";
+  }
+}
+
+// ---------- Reference photo upload ----------
+
 async function uploadReference() {
   const file = fileInput.files[0];
 
@@ -235,7 +335,8 @@ async function uploadReference() {
     }
 
     fileInput.value = "";
-    setUploadMsg("Uploaded! It will be used in the next scan.", "success");
+    setUploadMsg("Uploaded! It will be used in your next scan.", "success");
+    loadProfile();
   } catch (err) {
     setUploadMsg("Upload failed: " + err.message, "error");
   } finally {
@@ -244,9 +345,15 @@ async function uploadReference() {
   }
 }
 
+// ---------- Start ----------
+
 scanBtn.addEventListener("click", runScan);
 uploadBtn.addEventListener("click", uploadReference);
+saveEmailBtn.addEventListener("click", saveEmail);
+
+userIdText.textContent = USER_ID;
 
 loadAlerts().catch((err) => {
   setStatus("Could not load alerts: " + err.message, "error");
 });
+loadProfile();
