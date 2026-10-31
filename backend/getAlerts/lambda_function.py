@@ -1,10 +1,22 @@
 import os
+import re
 import json
 import boto3
 from decimal import Decimal
+from boto3.dynamodb.conditions import Key
 
 dynamodb = boto3.resource("dynamodb")
-table = dynamodb.Table(os.environ.get("TABLE_NAME", "FaceGuardAlerts"))
+table = dynamodb.Table(os.environ.get("TABLE_NAME", "FaceGuardAlertsByUser"))
+
+USER_ID_PATTERN = re.compile(r"^[a-f0-9]{32}$")
+
+
+def respond(status, body):
+    return {
+        "statusCode": status,
+        "headers": {"Content-Type": "application/json"},
+        "body": json.dumps(body, default=decimal_to_float),
+    }
 
 
 def decimal_to_float(obj):
@@ -15,17 +27,23 @@ def decimal_to_float(obj):
 
 
 def lambda_handler(event, context):
+    headers = (event or {}).get("headers") or {}
+    user_id = headers.get("x-user-id", "")
+    if not USER_ID_PATTERN.match(user_id):
+        return respond(400, {"error": "Missing or invalid user ID"})
+
+    # Only this user's alerts are read.
     items = []
-    response = table.scan()
+    response = table.query(KeyConditionExpression=Key("userId").eq(user_id))
     items.extend(response.get("Items", []))
     while "LastEvaluatedKey" in response:
-        response = table.scan(ExclusiveStartKey=response["LastEvaluatedKey"])
+        response = table.query(
+            KeyConditionExpression=Key("userId").eq(user_id),
+            ExclusiveStartKey=response["LastEvaluatedKey"],
+        )
         items.extend(response.get("Items", []))
 
+    # Newest and most suspicious first
     items.sort(key=lambda i: (i.get("scannedAt", ""), i.get("manipulationScore", 0)), reverse=True)
 
-    return {
-        "statusCode": 200,
-        "headers": {"Content-Type": "application/json"},
-        "body": json.dumps({"count": len(items), "alerts": items}, default=decimal_to_float),
-    }
+    return respond(200, {"count": len(items), "alerts": items})
